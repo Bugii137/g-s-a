@@ -1,65 +1,113 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://127.0.0.1:5000/api';
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  timeout: 5000, // 5 second timeout
-});
-
-// Add request interceptor for debugging
-api.interceptors.request.use(
-  (config) => {
-    console.log('Making API request to:', config.url);
-    return config;
-  },
-  (error) => {
-    console.error('Request error:', error);
-    return Promise.reject(error);
+class GarageAPI {
+  constructor() {
+    this.baseURLs = [
+      'http://127.0.0.1:5000/api',
+      'http://localhost:5000/api'
+    ];
+    this.currentBaseURL = this.baseURLs[0];
+    this.api = this.createApiInstance();
   }
-);
 
-// Add response interceptor for debugging
-api.interceptors.response.use(
-  (response) => {
-    console.log('API response received:', response.status);
-    return response;
-  },
-  (error) => {
-    console.error('API response error:', error.message);
-    if (error.code === 'ECONNREFUSED') {
-      console.error('Backend server is not running or not accessible');
+  createApiInstance(baseURL = this.currentBaseURL) {
+    const instance = axios.create({
+      baseURL,
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Request interceptor
+    instance.interceptors.request.use(
+      (config) => {
+        console.log(`🔄 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+        return config;
+      },
+      (error) => {
+        console.error('❌ Request Error:', error.message);
+        return Promise.reject(error);
+      }
+    );
+
+    // Response interceptor
+    instance.interceptors.response.use(
+      (response) => {
+        console.log(`✅ API Response: ${response.status} ${response.config.url}`);
+        return response;
+      },
+      (error) => {
+        console.error('❌ Response Error:', error.message);
+        
+        if (error.code === 'ECONNREFUSED') {
+          console.error('💡 Backend server is not running or not accessible');
+        } else if (error.response) {
+          console.error(`📊 Server responded with: ${error.response.status}`, error.response.data);
+        }
+        
+        return Promise.reject(error);
+      }
+    );
+
+    return instance;
+  }
+
+  async healthCheck() {
+    for (const url of this.baseURLs) {
+      try {
+        console.log(`🔍 Testing backend connection: ${url}`);
+        const testApi = this.createApiInstance(url);
+        const response = await testApi.get('/health');
+        
+        if (response.data.status === 'healthy') {
+          console.log(`✅ Backend connected: ${url}`);
+          this.currentBaseURL = url;
+          this.api = this.createApiInstance(url);
+          return response.data;
+        }
+      } catch (error) {
+        console.log(`❌ Backend not available: ${url}`);
+      }
     }
-    return Promise.reject(error);
+    
+    throw new Error('No backend server available. Please start the backend server.');
   }
-);
 
-export const customerAPI = {
-  getAll: () => api.get('/customers'),
-  create: (data) => api.post('/customers', data),
-};
+  // Customer API
+  customer = {
+    getAll: () => this.api.get('/customers'),
+    create: (data) => this.api.post('/customers', data),
+  };
 
-export const serviceAPI = {
-  getAll: () => api.get('/services'),
-  create: (data) => api.post('/services', data),
-};
+  // Service API
+  service = {
+    getAll: () => this.api.get('/services'),
+    create: (data) => this.api.post('/services', data),
+  };
 
-export const appointmentAPI = {
-  getAll: () => api.get('/appointments'),
-  create: (data) => api.post('/appointments', data),
-  update: (id, data) => api.put(`/appointments/${id}`, data),
-};
+  // Appointment API
+  appointment = {
+    getAll: () => this.api.get('/appointments'),
+    create: (data) => this.api.post('/appointments', data),
+    update: (id, data) => this.api.put(`/appointments/${id}`, data),
+  };
 
-export const billingAPI = {
-  getAll: () => api.get('/billing'),
-  create: (data) => api.post('/billing', data),
-  markPaid: (id) => api.put(`/billing/${id}/pay`),
-};
+  // Billing API
+  billing = {
+    getAll: () => this.api.get('/billing'),
+    create: (data) => this.api.post('/billing', data),
+    markPaid: (id) => this.api.put(`/billing/${id}/pay`),
+  };
+}
 
-// Health check function
-export const healthCheck = () => api.get('/health');
+// Create singleton instance
+const garageAPI = new GarageAPI();
 
-export default api;
+// Export individual methods for backward compatibility
+export const customerAPI = garageAPI.customer;
+export const serviceAPI = garageAPI.service;
+export const appointmentAPI = garageAPI.appointment;
+export const billingAPI = garageAPI.billing;
+export const healthCheck = () => garageAPI.healthCheck();
+export default garageAPI;
