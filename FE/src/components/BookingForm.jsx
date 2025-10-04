@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { serviceAPI, appointmentAPI } from '../services/api';
+import { serviceAPI, healthCheck } from '../services/api';
 
 const BookingForm = () => {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [backendStatus, setBackendStatus] = useState('checking');
   const [message, setMessage] = useState('');
   
   const [formData, setFormData] = useState({
@@ -16,8 +17,21 @@ const BookingForm = () => {
   });
 
   useEffect(() => {
-    loadServices();
+    checkBackendHealth();
   }, []);
+
+  const checkBackendHealth = async () => {
+    try {
+      setBackendStatus('checking');
+      await healthCheck();
+      setBackendStatus('connected');
+      loadServices();
+    } catch (error) {
+      setBackendStatus('disconnected');
+      setMessage('❌ Backend server is not running. Please start the backend server.');
+      console.error('Backend health check failed:', error);
+    }
+  };
 
   const loadServices = async () => {
     try {
@@ -25,17 +39,35 @@ const BookingForm = () => {
       setServices(response.data);
     } catch (error) {
       console.error('Error loading services:', error);
-      setMessage('Error loading services. Please check if backend is running.');
+      setMessage('❌ Error loading services. Please check if backend is running on port 5000.');
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (backendStatus !== 'connected') {
+      setMessage('❌ Cannot book appointment. Backend server is not connected.');
+      return;
+    }
+
     setLoading(true);
     setMessage('');
 
     try {
-      await appointmentAPI.create(formData);
+      const response = await fetch('http://127.0.0.1:5000/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
       setMessage('✅ Appointment booked successfully!');
       setFormData({
         name: '',
@@ -60,6 +92,15 @@ const BookingForm = () => {
     });
   };
 
+  const getBackendStatusColor = () => {
+    switch (backendStatus) {
+      case 'connected': return '#28a745';
+      case 'disconnected': return '#dc3545';
+      case 'checking': return '#ffc107';
+      default: return '#6c757d';
+    }
+  };
+
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
       <div style={{
@@ -69,7 +110,25 @@ const BookingForm = () => {
         marginBottom: '20px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
       }}>
-        <h2>Book Service Appointment</h2>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px'
+        }}>
+          <h2>Book Service Appointment</h2>
+          <div style={{
+            padding: '5px 10px',
+            backgroundColor: getBackendStatusColor(),
+            color: 'white',
+            borderRadius: '15px',
+            fontSize: '12px',
+            fontWeight: 'bold'
+          }}>
+            Backend: {backendStatus}
+          </div>
+        </div>
+        
         {message && (
           <div style={{ 
             padding: '10px', 
@@ -79,6 +138,25 @@ const BookingForm = () => {
             borderRadius: '4px'
           }}>
             {message}
+          </div>
+        )}
+
+        {backendStatus === 'disconnected' && (
+          <div style={{ 
+            padding: '15px', 
+            marginBottom: '20px', 
+            backgroundColor: '#fff3cd',
+            color: '#856404',
+            borderRadius: '4px',
+            border: '1px solid #ffeaa7'
+          }}>
+            <strong>Backend Server Not Running</strong>
+            <p style={{ margin: '5px 0 0 0' }}>
+              Please start the backend server by running:<br />
+              <code style={{ background: '#f8f9fa', padding: '2px 5px', borderRadius: '3px' }}>
+                cd BE && source venv/Scripts/activate && python app.py
+              </code>
+            </p>
           </div>
         )}
         
@@ -91,12 +169,14 @@ const BookingForm = () => {
               value={formData.name}
               onChange={handleChange}
               required
+              disabled={backendStatus !== 'connected'}
               style={{
                 width: '100%',
                 padding: '8px',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                fontSize: '14px'
+                fontSize: '14px',
+                opacity: backendStatus === 'connected' ? 1 : 0.6
               }}
             />
           </div>
@@ -109,12 +189,14 @@ const BookingForm = () => {
               value={formData.phone}
               onChange={handleChange}
               required
+              disabled={backendStatus !== 'connected'}
               style={{
                 width: '100%',
                 padding: '8px',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                fontSize: '14px'
+                fontSize: '14px',
+                opacity: backendStatus === 'connected' ? 1 : 0.6
               }}
             />
           </div>
@@ -126,12 +208,14 @@ const BookingForm = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              disabled={backendStatus !== 'connected'}
               style={{
                 width: '100%',
                 padding: '8px',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                fontSize: '14px'
+                fontSize: '14px',
+                opacity: backendStatus === 'connected' ? 1 : 0.6
               }}
             />
           </div>
@@ -143,12 +227,14 @@ const BookingForm = () => {
               value={formData.service_id}
               onChange={handleChange}
               required
+              disabled={backendStatus !== 'connected' || services.length === 0}
               style={{
                 width: '100%',
                 padding: '8px',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                fontSize: '14px'
+                fontSize: '14px',
+                opacity: backendStatus === 'connected' ? 1 : 0.6
               }}
             >
               <option value="">Select a service</option>
@@ -168,12 +254,14 @@ const BookingForm = () => {
               value={formData.date}
               onChange={handleChange}
               required
+              disabled={backendStatus !== 'connected'}
               style={{
                 width: '100%',
                 padding: '8px',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                fontSize: '14px'
+                fontSize: '14px',
+                opacity: backendStatus === 'connected' ? 1 : 0.6
               }}
             />
           </div>
@@ -185,12 +273,14 @@ const BookingForm = () => {
               value={formData.time}
               onChange={handleChange}
               required
+              disabled={backendStatus !== 'connected'}
               style={{
                 width: '100%',
                 padding: '8px',
                 border: '1px solid #ddd',
                 borderRadius: '4px',
-                fontSize: '14px'
+                fontSize: '14px',
+                opacity: backendStatus === 'connected' ? 1 : 0.6
               }}
             >
               <option value="">Select time</option>
@@ -209,15 +299,16 @@ const BookingForm = () => {
           <button 
             type="submit" 
             style={{
-              backgroundColor: '#007bff',
+              backgroundColor: backendStatus === 'connected' ? '#007bff' : '#6c757d',
               color: 'white',
               padding: '10px 20px',
               border: 'none',
               borderRadius: '5px',
-              cursor: 'pointer',
-              fontSize: '14px'
+              cursor: backendStatus === 'connected' ? 'pointer' : 'not-allowed',
+              fontSize: '14px',
+              opacity: backendStatus === 'connected' ? 1 : 0.6
             }}
-            disabled={loading}
+            disabled={loading || backendStatus !== 'connected'}
           >
             {loading ? 'Booking...' : 'Book Appointment'}
           </button>

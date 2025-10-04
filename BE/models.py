@@ -10,7 +10,7 @@ class Customer(db.Model):
     phone = db.Column(db.String(20), nullable=False)
     email = db.Column(db.String(100))
     
-    appointments = db.relationship('Appointment', backref='customer', lazy=True)
+    appointments = db.relationship('Appointment', backref='customer', lazy=True, cascade='all, delete-orphan')
     
     def to_dict(self):
         return {
@@ -27,7 +27,7 @@ class Service(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     
-    appointments = db.relationship('Appointment', backref='service', lazy=True)
+    appointments = db.relationship('Appointment', backref='service', lazy=True, cascade='all, delete-orphan')
     
     def to_dict(self):
         return {
@@ -46,7 +46,7 @@ class Appointment(db.Model):
     time = db.Column(db.String(8), nullable=False)   # HH:MM AM/PM
     status = db.Column(db.String(20), default='Pending')  # Pending, Approved, Completed, Cancelled
     
-    billing = db.relationship('Billing', backref='appointment', uselist=False, lazy=True)
+    billing = db.relationship('Billing', backref='appointment', uselist=False, lazy=True, cascade='all, delete-orphan')
     
     def to_dict(self):
         return {
