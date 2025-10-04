@@ -2,58 +2,69 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from models import db
 from routes import api
-import os
+from config import Config
 
 def create_app():
     app = Flask(__name__)
-    
-    # Configuration - use absolute path for database
-    base_dir = os.path.abspath(os.path.dirname(__file__))
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(base_dir, "garage.db")}'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['SECRET_KEY'] = 'your-secret-key-here'
+    app.config.from_object(Config)
     
     # Initialize extensions
     db.init_app(app)
-    CORS(app)  # Allow all origins for development
+    CORS(app, origins=["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173"])
     
     # Register blueprints
     app.register_blueprint(api, url_prefix='/api')
     
-    # Test routes
+    # Test route
     @app.route('/')
     def home():
         return jsonify({
             "message": "Garage Management System API is running!",
-            "status": "healthy"
+            "version": "1.0",
+            "endpoints": {
+                "health": "/api/health",
+                "services": "/api/services",
+                "appointments": "/api/appointments",
+                "customers": "/api/customers",
+                "billing": "/api/billing"
+            }
         })
     
+    # Health check route
     @app.route('/api/health')
     def health():
-        return jsonify({"status": "healthy", "message": "Backend server is running"})
+        return jsonify({
+            "status": "healthy", 
+            "message": "Backend server is running",
+            "timestamp": "2024-01-04 10:00:00"
+        })
+    
+    # Create tables
+    with app.app_context():
+        db.create_all()
+        print("✅ Database tables created successfully")
     
     return app
 
-# Create app instance
+# Create single app instance
 app = create_app()
 
 if __name__ == '__main__':
-    # Initialize database
-    with app.app_context():
-        db.create_all()
-        print("✅ Database initialized")
-    
-    print("🚀 Starting Garage Management System Backend...")
-    print("📡 Server will be available at:")
-    print("   http://localhost:5000")
-    print("   http://127.0.0.1:5000")
+    print("=" * 50)
+    print("🚀 Starting Garage Management System Backend")
+    print("=" * 50)
+    print("📡 Server URLs:")
+    print("   • http://127.0.0.1:5000")
+    print("   • http://localhost:5000")
     print("🔧 Debug mode: ON")
+    print("💡 Make sure the frontend is running on port 5173 or 5174")
+    print("=" * 50)
     
     try:
-        # Try with 0.0.0.0 to ensure it's accessible
-        app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)
-    except Exception as e:
-        print(f"❌ Error starting server: {e}")
-        print("💡 Trying alternative configuration...")
-        # Fallback to localhost
         app.run(debug=True, host='127.0.0.1', port=5000, use_reloader=False)
+    except OSError as e:
+        if "Address already in use" in str(e):
+            print("❌ Port 5000 is busy. Trying port 5001...")
+            app.run(debug=True, host='127.0.0.1', port=5001, use_reloader=False)
+        else:
+            print(f"❌ Error starting server: {e}")
