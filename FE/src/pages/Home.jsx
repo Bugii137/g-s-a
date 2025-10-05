@@ -72,13 +72,13 @@ const Home = () => {
           boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
         }}>
           <h3>📍 Locations</h3>
-          <p><strong>Nairobi Branch:</strong><br />
-          Moi Avenue, CBD<br />
-          Phone: +254 20 123 4567</p>
+          <p><strong>Nairobi:</strong><br />
+          Bunyala Road<br />
+          Phone: +254 123 4567</p>
           
-          <p><strong>Mombasa Branch:</strong><br />
-          Nyerere Road<br />
-          Phone: +254 41 987 6543</p>
+          <p><strong>Thika:</strong><br />
+          Upper Road<br />
+          Phone: +254 987 6543</p>
         </div>
       </div>
 
