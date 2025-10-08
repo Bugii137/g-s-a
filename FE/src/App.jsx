@@ -176,21 +176,9 @@ function App() {
             marginTop: '4rem'
           }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-              <p>&copy; 2025 KabHub Kenya. All rights reserved.</p>
+              
               <p>Home of Automotive Services Across Kenya</p>
               <p style={{ fontSize: '12px', opacity: 0.7, marginTop: '10px' }}>
-                Logged in as: {userRole} | <button 
-                  onClick={handleLogout}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#60a5fa',
-                    cursor: 'pointer',
-                    textDecoration: 'underline'
-                  }}
-                >
-                  Logout
-                </button>
               </p>
             </div>
           </footer>
