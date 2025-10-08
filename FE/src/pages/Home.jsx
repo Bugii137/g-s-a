@@ -13,10 +13,10 @@ const Home = () => {
         marginBottom: '40px'
       }}>
         <h1 style={{ fontSize: '3rem', marginBottom: '20px' }}>
-          AutoCare Kenya
+          KabHub Kenya
         </h1>
         <p style={{ fontSize: '1.2rem', marginBottom: '30px' }}>
-          Professional Automotive Services & Maintenance
+          Home of Automotive Services & Maintenance
         </p>
         <Link to="/booking" style={{
           backgroundColor: 'white',
@@ -83,7 +83,7 @@ const Home = () => {
       </div>
 
       <div style={{ textAlign: 'center', marginTop: '40px' }}>
-        <h2>Why Choose AutoCare Kenya?</h2>
+        <h2>Why Choose KabHub Kenya?</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginTop: '20px' }}>
           <div style={{
             background: 'white',

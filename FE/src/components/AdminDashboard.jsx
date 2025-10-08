@@ -15,7 +15,7 @@ const AdminDashboard = () => {
       id: 1,
       customer_name: 'John Kamau',
       service_name: 'Oil Change',
-      date: '2024-01-15',
+      date: '2025-01-15',
       time: '10:00 AM',
       status: 'Pending',
       vehicle_info: 'Toyota Corolla - KCA 123A',
@@ -25,7 +25,7 @@ const AdminDashboard = () => {
       id: 2,
       customer_name: 'Mary Wanjiku',
       service_name: 'Brake Service',
-      date: '2024-01-16',
+      date: '2025-01-16',
       time: '2:00 PM',
       status: 'Approved',
       vehicle_info: 'Nissan X-Trail - KDB 456B',
@@ -35,7 +35,7 @@ const AdminDashboard = () => {
       id: 3,
       customer_name: 'James Ochieng',
       service_name: 'Engine Tune-up',
-      date: '2024-01-17',
+      date: '2025-01-17',
       time: '9:00 AM',
       status: 'Completed',
       vehicle_info: 'Subaru Forester - KCD 789C',
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
       service_name: 'Brake Service',
       amount: 4500,
       payment_status: 'Paid',
-      issued_date: '2024-01-15'
+      issued_date: '2025-01-15'
     },
     {
       id: 2,
@@ -58,7 +58,7 @@ const AdminDashboard = () => {
       service_name: 'Engine Tune-up',
       amount: 6000,
       payment_status: 'Unpaid',
-      issued_date: '2024-01-16'
+      issued_date: '2025-01-16'
     }
   ];
 

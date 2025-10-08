@@ -56,7 +56,7 @@ const LoginForm = ({ onLogin }) => {
       if (isLogin) {
         // Login logic
         // For demo purposes - in real app, this would call your backend
-        if (formData.email === 'admin@autocare.com' && formData.password === 'admin123') {
+        if (formData.email === 'admin@kabhub.com' && formData.password === 'admin123') {
           localStorage.setItem('isAuthenticated', 'true');
           localStorage.setItem('userRole', 'admin');
           onLogin('admin');
@@ -98,7 +98,7 @@ const LoginForm = ({ onLogin }) => {
         fontSize: '28px',
         fontWeight: 'bold'
       }}>
-        {isLogin ? 'Login to AutoCare' : 'Create Account'}
+        {isLogin ? 'Login to KabHub' : 'Create Account'}
       </h2>
       
       {message && (
@@ -322,19 +322,7 @@ const LoginForm = ({ onLogin }) => {
         </button>
       </div>
 
-      {/* Demo Credentials */}
-      <div style={{
-        marginTop: '30px',
-        padding: '15px',
-        backgroundColor: '#f3f4f6',
-        borderRadius: '6px',
-        fontSize: '12px',
-        color: '#6b7280'
-      }}>
-        <strong>Demo Credentials:</strong><br />
-        Admin: admin@autocare.com / admin123<br />
-        User: any email with any password (6+ characters)
-      </div>
+    
     </div>
   );
 };

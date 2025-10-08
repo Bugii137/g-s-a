@@ -151,7 +151,7 @@ const BookingForm = () => {
               fontSize: '14px', 
               color: '#6b7280' 
             }}>
-              Schedule your vehicle service with AutoCare Kenya
+              Schedule your vehicle service with KabHub Kenya
             </p>
           </div>
           
