@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import BookingForm from './components/BookingForm';
-import AdminDashboard from './pages/AdminDashboard';
+import AdminDashboard from './components/AdminDashboard';
 import LoginForm from './components/LoginForm';
 
 function App() {
@@ -176,7 +176,7 @@ function App() {
             marginTop: '4rem'
           }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-              <p>&copy; 2024 AutoCare Kenya. All rights reserved.</p>
+              <p>&copy; 2025 AutoCare Kenya. All rights reserved.</p>
               <p>Professional Automotive Services Across Kenya</p>
               <p style={{ fontSize: '12px', opacity: 0.7, marginTop: '10px' }}>
                 Logged in as: {userRole} | <button 
